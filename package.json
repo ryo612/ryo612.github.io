@@ -1,0 +1,31 @@
+{
+  "name": "07",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "start": "canvas-sketch src/index.js --hot",
+    "build": "canvas-sketch src/index.js --build --inline"
+  },
+  "dependencies": {
+    "canvas-sketch": "0.7.4",
+    "canvas-sketch-cli": "1.11.20",
+    "canvas-sketch-util": "1.10.0",
+    "coffee-script": "^1.12.7",
+    "coffeescript": "^2.7.0",
+    "csv": "^6.2.0",
+    "dat.gui": "^0.7.7",
+    "fs": "^0.0.1-security",
+    "gh-pages": "^4.0.0",
+    "stats-js": "1.0.1",
+    "three": "0.133.1",
+    "three-csg": "^1.0.0",
+    "three-js-csg": "^72.0.0",
+    "threebsp": "^1.0.4"
+  },
+  "devDependencies": {
+    "@types/three": "0.93.13",
+    "ftp-deploy": "^2.4.3"
+  },
+  "keywords": []
+}
