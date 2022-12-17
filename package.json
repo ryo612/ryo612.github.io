@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.html",
   "scripts": {
+    "deploy": "gh-pages -d rhinstonesimulator",
     "start": "canvas-sketch src/index.js --hot",
+    "Inline":"canvas-sketch src/index.js --name index --build --inline",
     "build": "canvas-sketch src/index.js --build --inline"
   },
   "dependencies": {
@@ -24,8 +26,7 @@
     "threebsp": "^1.0.4"
   },
   "devDependencies": {
-    "@types/three": "0.93.13",
-    "ftp-deploy": "^2.4.3"
+    "@types/three": "0.93.13"
   },
   "keywords": []
 }
