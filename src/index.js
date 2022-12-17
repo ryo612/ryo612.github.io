@@ -21,47 +21,17 @@ require("three/examples/js/controls/OrbitControls");
 const Stats = require("stats-js");
 const { GUI } = require("dat.gui");
 
-//csv読み込み-----------------------
-//  function getCSV(){
-//   var req = new XMLHttpRequest(); // HTTPでファイルを読み込むためのXMLHttpRrequestオブジェクトを生成
-//   req.open("get", "src/stone.csv", true); // アクセスするファイルを指定
-//   req.send(null); // HTTPリクエストの発行
-
-//   // レスポンスが返ってきたらconvertCSVtoArray()を呼ぶ	
-//   req.onload = function(){
-//   convertCSVtoArray(req.responseText); // 渡されるのは読み込んだCSVデータ
-//   //alert(convertCSVtoArray(req.responseText));
-//   }
-// }
-
-// var result = []; // 最終的な二次元配列を入れるための配列
-
-// // 読み込んだCSVデータを二次元配列に変換する関数convertCSVtoArray()の定義
-// function convertCSVtoArray(str){ // 読み込んだCSVデータが文字列として渡される
-//   var tmp = str.split("\n"); // 改行を区切り文字として行を要素とした配列を生成
-
-//   // 各行ごとにカンマで区切った文字列を要素とした二次元配列を生成
-//   for(var i=0;i<tmp.length;++i){
-//       result[i] = tmp[i].split(',');
-//   }
-
-//   //alert(result[3][0]); // 300yen
-// }
-
-// getCSV(); //最初に実行される
-//alert(result[0]); // 300yen
 
 // CSVファイルを文字列として取得
 let srt = new XMLHttpRequest();
 
-srt.open("get", 'src/stone1.csv', false);
+srt.open("get", 'src/stone 3.csv', false);
 
 try {
   srt.send(null);
 } catch (err) {
   alert(err);
 }
-
 
 // 配列を用意
 let csletr = [];
@@ -80,9 +50,129 @@ for (let i = 0; i < lines.length; ++i) {
   }
 }
 
-//csv読み込み-----------------------
+//ローカルcsv
+// 1: ボタンを取得してchangeイベントの設定
+var loadBtn = document.querySelector("#loadBtn");
+loadBtn.addEventListener("change", upload, false);
 
-const x = csletr[0];
+function upload(event) {
+  // 2：chekFileReader関数でFileAPIにブラウザが対応してるかチェック
+  if (!checkFileReader()) {
+    alert("エラー：FileAPI非対応のブラウザです。");
+  } else {
+    // 3: 選択されたファイル情報を取得
+    var file = event.target.files[0];
+    var type = file.type; // MIMEタイプ
+    var size = file.size; // ファイル容量（byte）
+    var limit = 10000; // byte, 10KB
+
+    // MIMEタイプの判定
+    if (type == "image/jpeg") {
+      alert("画像はアップロードできません");
+      loadBtn.value="";
+      return;
+    }
+
+    //readerオブジェクトを作成
+    var reader = new FileReader();
+    // ファイル読み取りを実行
+    reader.readAsText(file);
+
+    // 4：CSVファイルを読み込む処理とエラー処理をする
+    reader.onload = function(event) {
+      var result = event.target.result;
+      makeCSV(result);
+    };
+
+    //読み込めなかった場合のエラー処理
+    reader.onerror = function() {
+      alert("エラー：ファイルをロードできません。");
+    };
+  }
+}
+
+//csvをうまく出力する
+function makeCSV(csvdata) {
+  //csvデータを1行ごとに配列にする
+  var tmp = csvdata.split("\n");
+
+  //６：1行のデータから各項目（各列）のデータを取りだして、2次元配列にする
+  csletr = [];
+  for (var i = 0; i < tmp.length; i++) {
+    //csvの1行のデータを取り出す
+    var row_data = tmp[i];
+
+    /*各行の列のデータを配列にする
+    csletr[
+        [1列目、2列目、3列目]　←1行目のデータ　
+        [1列目、2列目、3列目]　←2行目のデータ　
+        [1列目、2列目、3列目]　←3行目のデータ　
+        ]
+    */
+
+        csletr[i] = row_data.split(",");
+    //7：dataに入ってる各列のデータを出力する為のデータを作る
+  }
+}
+// ファイルアップロード判定
+function checkFileReader() {
+  var isUse = false;
+  if (window.File && window.FileReader && window.FileList && window.Blob) {
+    isUse = true;
+  }
+  return isUse;
+}
+
+
+
+// const x = csletr[0];
+// const y = csletr[1];
+// const r = csletr[2];
+// const p = csletr[3];
+// var r_stock = [r[0]];
+// var r_boolean = true;
+// var p_stock = [p[0]];
+// var p_boolean = true;
+
+// for (let i = 0; i < r.length; i++) {
+//   for (let j = 0; j < r_stock.length; j++) {
+//     if (r_stock[j] == r[i]) {
+//       r_boolean = false;
+//     }
+//   }
+//   if (r_boolean) {
+//     r_stock.push(r[i]);
+//   }
+//   r_boolean = true;
+// }
+
+// for (let i = 0; i < p.length; i++) {
+//   for (let j = 0; j < p_stock.length; j++) {
+//     if (p_stock[j] == p[i]) {
+//       p_boolean = false;
+//     }
+//   }
+//   if (p_boolean) {
+//     p_stock.push(p[i]);
+//   }
+//   p_boolean = true;
+// }
+
+
+const settings = {
+  animate: true,
+  context: "webgl",
+  resizeCanvas: false,
+};
+
+
+const radius = 5 / 2;
+const widthSegments = 20;
+const HeightSegments = 20;
+
+
+const sketch = ({ context, canvas }) => {
+  const x = csletr[0];
 const y = csletr[1];
 const r = csletr[2];
 const p = csletr[3];
@@ -114,23 +204,9 @@ for (let i = 0; i < p.length; i++) {
   }
   p_boolean = true;
 }
-
-const settings = {
-  animate: true,
-  context: "webgl",
-  resizeCanvas: false,
-};
-
-
-const radius = 5 / 2;
-const widthSegments = 20;
-const HeightSegments = 20;
-
-
-const sketch = ({ context, canvas }) => {
   const stats = new Stats();
-  document.body.appendChild(stats.dom);
-  const gui = new GUI();
+  //document.body.appendChild(stats.dom);
+  //const gui = new GUI();
 
   const options = {
     enableSwoopingCamera: false,
@@ -147,10 +223,12 @@ const sketch = ({ context, canvas }) => {
   //renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 10000);
-  camera.position.set(0, 0, 100);
+  camera.position.set(0, 0, 200);
 
   const controls = new THREE.OrbitControls(camera, canvas);
   controls.enabled = !options.enableSwoopingCamera;
+//   controls.enableDamping = true;
+// controls.dampingFactor = 0.2;
 
   const scene = new THREE.Scene();
 
@@ -161,7 +239,7 @@ const sketch = ({ context, canvas }) => {
   light.shadow.mapSize.set(5200, 5200);
   scene.add(light);
 
-  const helper = new THREE.SpotLightHelper(light, 5);
+  // const helper = new THREE.SpotLightHelper(light, 5);
   //helper.setClearColor(0x474747, 1);
   //scene.add(helper);
 
@@ -281,25 +359,10 @@ const sketch = ({ context, canvas }) => {
     //sheen : 1
   });*/
 
-
-  var maxx = -10;
-  var minx = 10000;
-  var maxy = -10;
-  var miny = 10000;
-  for (let i = 0; i < x.length; i++) {
-    if (maxx < x[i]) {
-      maxx = x[i];
-    }
-    if (minx > x[i]) {
-      minx = x[i];
-    }
-    if (maxy < y[i]) {
-      maxy = y[i];
-    }
-    if (miny > y[i]) {
-      miny = y[i];
-    }
-  }
+  var maxx = Math.max.apply(null, x);
+  var minx = Math.min.apply(null, x);
+  var maxy = Math.max.apply(null, y);
+  var miny = Math.min.apply(null, y);
 
 
 
@@ -309,7 +372,7 @@ const sketch = ({ context, canvas }) => {
       const b = p[i];
       if (a == b) {
         const pmesh = new THREE.Mesh(new THREE.CircleGeometry(px(r[i] / 2), widthSegments), material2[j]);
-        pmesh.position.set((x[i] - x[0]) / 2-(maxx - minx) / 4, -(y[i] - y[0]) / 2, 0);
+        pmesh.position.set((x[i] - minx) / 2-(maxx - minx) / 4, -(y[i] - miny) / 2+(maxy - miny) / 4, 0);
         pmesh.castShadow = true;
         pmesh.receiveShadow = true;
         scene.add(pmesh);
@@ -328,9 +391,18 @@ const sketch = ({ context, canvas }) => {
       const a = r_stock[j];
       const b = r[i];
       if (a == b) {
-        const mesh = new THREE.Mesh(new THREE.SphereGeometry(px(r[i] / 2), widthSegments, HeightSegments, 0, 2 * Math.PI, 0, 0.5 * Math.PI), material3[j]);
+        if(r[i]<=4){
+          var R = (Math.pow(r[i] / 2, 2) + Math.pow(r[i] / 2, 2)) / (r[i] / 2);
+        }else{
+          var R = (Math.pow(r[i] / 2, 2) + Math.pow(2, 2)) / 2;
+        }
+        const mesh = new THREE.Mesh(new THREE.SphereGeometry(px(R/*r[i]*/ / 2), widthSegments, HeightSegments/*, 0, 2 * Math.PI, 0, 0.5 * Math.PI*/), material3[j]);
         mesh.rotateX(Math.PI / 2);
-        mesh.position.set((x[i] - x[0]) / 2-(maxx - minx) / 4, -(y[i] - y[0]) / 2, 0);
+        if(r[i]<=4){
+          mesh.position.set((x[i] - minx) / 2-(maxx - minx) / 4, -(y[i] - miny) / 2+(maxy - miny) / 4, 0);
+        }else{
+          mesh.position.set((x[i] - minx) / 2-(maxx - minx) / 4, -(y[i] - miny) / 2+(maxy - miny) / 4, -(px(R/2)-px(2)));
+        }
         mesh.castShadow = true;
         mesh.receiveShadow = true;
         scene.add(mesh);
@@ -347,15 +419,15 @@ const sketch = ({ context, canvas }) => {
   }
 
   //const mediaGeometry = new THREE.Mesh(new THREE.BoxGeometry(/*minx / 2.0 - px(10), miny / 2.0 - px(10),*/ (maxx - minx) / 2 + px(20), (maxy - miny) / 2 + px(20),10));
-  const mediaGeometry = new THREE.PlaneGeometry((maxx - minx) / 2 + px(20), (maxy - miny) / 2 + px(20));
+  const mediaGeometry = new THREE.PlaneGeometry((maxx - minx) / 2 + px(20)/*+110*/, (maxy - miny) / 2 + px(20)/*-20*/);
   //mediaGeometry.rotateX(Math.PI / 2);
   const mediaMesh = new THREE.Mesh(mediaGeometry, material0);
-  mediaMesh.position.set(0, 0, 0);
-  mediaMesh.castShadow = true;
-  mediaMesh.receiveShadow = true;
+  mediaMesh.position.set(0, 0, -1);
+  //mediaMesh.castShadow = true;
+  //mediaMesh.receiveShadow = true;
   scene.add(mediaMesh);
 
-  const geometry = new THREE.IcosahedronGeometry(1, 0);
+  // const geometry = new THREE.IcosahedronGeometry(1, 0);
 
 
   // const mesh3 = new THREE.Mesh(new THREE.SphereGeometry(px(r[0] / 2), widthSegments, HeightSegments), material2);
@@ -383,10 +455,10 @@ const sketch = ({ context, canvas }) => {
   // GUI
   // ---
 
-  gui.add(options, "enableSwoopingCamera").onChange((val) => {
-    controls.enabled = !val;
-    controls.reset();
-  });
+  // gui.add(options, "enableSwoopingCamera").onChange((val) => {
+  //   controls.enabled = !val;
+  //   controls.reset();
+  // });
 
   // Update
   // ------
@@ -398,8 +470,8 @@ const sketch = ({ context, canvas }) => {
     const rotateX = (deltaTime / ROTATE_TIME) * Math.PI * 2;
     const rotateY = (deltaTime / ROTATE_TIME) * Math.PI * 2;
 
-    // mesh.rotateOnWorldAxis(xAxis, rotateX);
-    // mesh.rotateOnWorldAxis(yAxis, rotateY);
+    mesh.rotateOnWorldAxis(xAxis, rotateX);
+    mesh.rotateOnWorldAxis(yAxis, rotateY);
 
     if (options.enableSwoopingCamera) {
       camera.position.x = Math.sin((time / 10) * Math.PI * 2) * 3;
@@ -428,19 +500,19 @@ const sketch = ({ context, canvas }) => {
       camera.updateProjectionMatrix();
     },
     render({ time, deltaTime }) {
-      stats.begin();
+      //stats.begin();
       controls.update();
       update(time, deltaTime);
       renderer.render(scene, camera);
-      stats.end();
+      //stats.end();
     },
     unload() {
       geometry.dispose();
       material.dispose();
       controls.dispose();
       renderer.dispose();
-      gui.destroy();
-      document.body.removeChild(stats.dom);
+      //gui.destroy();
+      //document.body.removeChild(stats.dom);
     },
   };
 };
@@ -449,4 +521,10 @@ function px(a) {//mm→px
   return a * 72 / 25.4;
 }
 
-canvasSketch(sketch, settings);
+//canvasSketch(sketch, settings);
+
+
+document.getElementById("text-button").onclick = function() {
+  document.getElementById("text").innerHTML = "アップロード";
+  canvasSketch(sketch, settings);
+};
